@@ -51,12 +51,22 @@ def hours(reg_date)
   @timehash[reg_date] += 1
 end
 
+def days(reg_day)
+  time = Time.strptime(reg_day, '%m/%d/%Y %k:%M')
+  reg_day = time.wday.to_i
+  @dayhash[reg_day] += 1
+end
 
 puts 'EventManager initialized.'
 
 @timehash = {}
 ary = (0..23).to_a
 ary.each{|a| @timehash[a] = 0}
+
+@dayhash = {}
+days = (0..6).to_a
+days.each{|a| @dayhash[a] = 0}
+@namedayhash = {}
 
 contents = CSV.open(
   'event_attendees.csv',
@@ -73,6 +83,7 @@ contents.each do |row|
   zipcode = clean_zipcode(row[:zipcode])
   phone_number = clean_phone_number(row[:homephone])
   reg_date = hours(row[:regdate])
+  reg_day = days(row[:regdate])
   legislators = legislators_by_zipcode(zipcode)
 
 
@@ -83,7 +94,25 @@ contents.each do |row|
 #   save_thank_you_letter(id,form_letter)
 
 puts "#{name} #{zipcode} #{phone_number}"
-
 end
+
+
+
+  @namedayhash[:sunday] = @dayhash[0]
+  @namedayhash[:monday] = @dayhash[1]
+  @namedayhash[:tuesday] = @dayhash[2]
+  @namedayhash[:wednesday] = @dayhash[3]
+  @namedayhash[:thursday] = @dayhash[4]
+  @namedayhash[:friday] = @dayhash[5]
+  @namedayhash[:saturday] = @dayhash[6]
+
 sorted_timehash = @timehash.sort_by {|_key, value| value}.to_h
+puts ""
+puts "sorted hours of reg date"
 puts sorted_timehash
+
+
+puts ""
+puts "sorted days of the week reg date"
+sorted_dayshash = @namedayhash.sort_by {|_key, value| value}.to_h
+puts sorted_dayshash
